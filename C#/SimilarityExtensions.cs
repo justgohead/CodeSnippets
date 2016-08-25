@@ -101,14 +101,6 @@ namespace CodeSnippets
                 return string.IsNullOrEmpty(target) ? 1 : 0;
             if (string.IsNullOrEmpty(target))
                 return string.IsNullOrEmpty(source) ? 1 : 0;
-            double deffIndex = 0;
-            for (int i = 0; i < target.Length; i++)
-            {
-                if (i < source.Length && source[i] == target[i])
-                {
-                    deffIndex++;
-                }
-            }
             double stepsToSame = ComputeLevenshteinDistance(source, target);
             double resembleOrder = ComputeResembleWithOrder(source, target);
             double result = (stepsToSame == source.Length && stepsToSame == target.Length) ? 0.5 : stepsToSame / (double)Math.Max(source.Length, target.Length);

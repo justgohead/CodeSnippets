@@ -117,7 +117,7 @@ namespace CodeSnippets
             {
                 result = result + (0.09 * 0.001);
             }
-            return result > 1 ? 1 : result;
+            return result < 0 ? 0 : (result > 1 ? 1 : result);
         }
     }
 }

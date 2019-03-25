@@ -1,41 +1,41 @@
---²éÑ¯Ô¼Êø
+--æŸ¥è¯¢çº¦æŸ
 SELECT  *  from  INFORMATION_SCHEMA.
   TABLE_CONSTRAINTS WHERE CONSTRAINT_NAME LIKE 'AK%'
-  --É¾³ý
+  --åˆ é™¤
   alter table ActivityOrder drop constraint  AK_ACTIVITYORDERCODE_ACTIVITY
 
---ÔÚ´æ´¢¹ý³ÌÖÐ²éÑ¯Ö¸¶¨ÎÄ±¾
---½«textÌæ»»³ÉÄãÒª²éÕÒµÄÄÚÈÝ   
+--åœ¨å­˜å‚¨è¿‡ç¨‹ä¸­æŸ¥è¯¢æŒ‡å®šæ–‡æœ¬
+--å°†textæ›¿æ¢æˆä½ è¦æŸ¥æ‰¾çš„å†…å®¹   
 select name   
 from sysobjects o, syscomments s   
 where o.id = s.id   
 and text like '%text%'   
 and o.xtype = 'P'   
   
---½«textÌæ»»³ÉÄãÒª²éÕÒµÄÄÚÈÝ   
+--å°†textæ›¿æ¢æˆä½ è¦æŸ¥æ‰¾çš„å†…å®¹   
 SELECT ROUTINE_NAME, ROUTINE_DEFINITION   
 FROM INFORMATION_SCHEMA.ROUTINES   
 WHERE ROUTINE_DEFINITION LIKE '%text%'   
 AND ROUTINE_TYPE='PROCEDURE' 
 
---²éÑ¯´¥·¢Æ÷
+--æŸ¥è¯¢è§¦å‘å™¨
 select name from sysobjects where xtype='TR' 
 
---Çå³ý»º´æ
+--æ¸…é™¤ç¼“å­˜
 DBCC DROPCLEANBUFFERS;
 DBCC FREEPROCCACHE;
 DBCC FREESYSTEMCACHE ('ALL');
 
---ÐÞ¸Ä×Ö¶Î
-ALTER TABLE CustomerInfo ALTER COLUMN column ×Ö¶ÎÃû varchar(50) not null;
+--ä¿®æ”¹å­—æ®µ
+ALTER TABLE CustomerInfo ALTER COLUMN column å­—æ®µå varchar(50) not null;
 
---Çå¿ÕËùÓÐÊý¾Ý
+--æ¸…ç©ºæ‰€æœ‰æ•°æ®
 
 EXECUTE sp_msforeachtable 'delete from ?'
-»òÕß
+æˆ–è€…
 EXECUTE sp_msforeachtable 'truncate table ?'
 
---É¾³ýËùÓÐ±í
+--åˆ é™¤æ‰€æœ‰è¡¨
 declare @sql varchar(8000)
 while (select count(*) from sysobjects where type='U')>0
 begin
@@ -46,6 +46,24 @@ ORDER BY 'drop table ' + name
 exec(@sql) 
 end
 
---ÉèÖÃ¼æÈÝÄ£Ê½(½â¾öEF¸üÐÂ½á¹¹¿¨ËÀÎÊÌâ Ä¬ÈÏÎª120)
+--è®¾ç½®å…¼å®¹æ¨¡å¼(è§£å†³EFæ›´æ–°ç»“æž„å¡æ­»é—®é¢˜ é»˜è®¤ä¸º120)
  ALTER DATABASE DATABASEName
  SET COMPATIBILITY_LEVEL = 110
+ 
+ SELECT  der.[session_id],der.[blocking_session_id],  
+ sp.lastwaittype,sp.hostname,sp.program_name,sp.loginame,  
+ der.[start_time] AS 'å¼€å§‹æ—¶é—´',  
+ der.[status] AS 'çŠ¶æ€',  
+ dest.[text] AS 'sqlè¯­å¥',  
+ DB_NAME(der.[database_id]) AS 'æ•°æ®åº“å',  
+ der.[wait_type] AS 'ç­‰å¾…èµ„æºç±»åž‹',  
+ der.[wait_time] AS 'ç­‰å¾…æ—¶é—´',  
+ der.[wait_resource] AS 'ç­‰å¾…çš„èµ„æº',  
+ der.[logical_reads] AS 'é€»è¾‘è¯»æ¬¡æ•°'  
+ FROM sys.[dm_exec_requests] AS der  
+ INNER JOIN master.dbo.sysprocesses AS sp ON der.session_id=sp.spid  
+ CROSS APPLY  sys.[dm_exec_sql_text](der.[sql_handle]) AS dest  
+ --WHERE [session_id]>50 AND session_id<>@@SPID  
+ ORDER BY der.[session_id]
+
+ kill session_id
